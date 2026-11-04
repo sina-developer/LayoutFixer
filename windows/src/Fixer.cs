@@ -130,8 +130,9 @@ sealed class Fixer
 
     void Refresh()
     {
-        if (Target() is not { } target) return;
-        popup.ShowSuggestion(Convert(run, target).Trim(), target.DisplayName);
+        if (Layouts.Current() is not { } current || Layouts.Other(current) is not { } target) return;
+        var typed = string.Concat(run.Select(k => k.Typed)).Trim();
+        popup.ShowSuggestion(typed, Convert(run, target).Trim(), current.Lang, target.Lang);
         hideTimer.Stop();
         hideTimer.Start();
     }
