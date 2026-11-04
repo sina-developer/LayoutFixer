@@ -74,6 +74,34 @@ static class Native
     [DllImport("user32.dll")] public static extern bool ClientToScreen(IntPtr hwnd, ref POINT point);
 
     [DllImport("dwmapi.dll")] public static extern int DwmSetWindowAttribute(IntPtr hwnd, int attr, ref int value, int size);
+
+    [StructLayout(LayoutKind.Sequential)]
+    public struct MARGINS { public int Left, Right, Top, Bottom; }
+
+    [DllImport("dwmapi.dll")] public static extern int DwmExtendFrameIntoClientArea(IntPtr hwnd, ref MARGINS margins);
+
+    [StructLayout(LayoutKind.Sequential)]
+    public struct ACCENT_POLICY { public int AccentState, AccentFlags; public uint GradientColor; public int AnimationId; }
+
+    [StructLayout(LayoutKind.Sequential)]
+    public struct WINDOWCOMPOSITIONATTRIBDATA { public int Attribute; public IntPtr Data; public int SizeOfData; }
+
+    [DllImport("user32.dll")] public static extern int SetWindowCompositionAttribute(IntPtr hwnd, ref WINDOWCOMPOSITIONATTRIBDATA data);
+
+    /// Frosted-glass (acrylic) background behind the window, tinted with `abgr` (0xAABBGGRR). Works on Windows 10 1803+ and 11.
+    public static bool SetAcrylic(IntPtr hwnd, uint abgr)
+    {
+        var accent = new ACCENT_POLICY { AccentState = 4 /* ACCENT_ENABLE_ACRYLICBLURBEHIND */, GradientColor = abgr };
+        int size = Marshal.SizeOf<ACCENT_POLICY>();
+        IntPtr ptr = Marshal.AllocHGlobal(size);
+        try
+        {
+            Marshal.StructureToPtr(accent, ptr, false);
+            var data = new WINDOWCOMPOSITIONATTRIBDATA { Attribute = 19 /* WCA_ACCENT_POLICY */, Data = ptr, SizeOfData = size };
+            return SetWindowCompositionAttribute(hwnd, ref data) != 0;
+        }
+        finally { Marshal.FreeHGlobal(ptr); }
+    }
     [DllImport("kernel32.dll")] public static extern bool AttachConsole(int pid);
 
     public static bool IsDown(int vk) => (GetAsyncKeyState(vk) & 0x8000) != 0;

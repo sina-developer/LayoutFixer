@@ -42,7 +42,7 @@ other way too: `sghl` → `سلام`.
 - Only steps in when it's sure: names, brands and typos (`github`, `figma`, `teh`) are never touched.
 - Fixes the whole run of wrong words, not just the last one.
 - Switches your keyboard layout so the next words come out right.
-- Fully offline. Nothing is stored or sent anywhere.
+- Fully offline. Nothing you type is stored or sent anywhere.
 
 ## Install
 
@@ -81,6 +81,7 @@ No Persian layout yet? **System Settings → Keyboard → Text Input → Edit…
    clock (click **^** if you don't see it). Right-click it for:
    - **Enabled**: turn fixing on or off
    - **Start with Windows**: launch it automatically when you sign in
+   - **Pop sound when a fix is suggested**: a soft pop when the popup appears (on by default)
    - **Quit LayoutFixer**
 5. **Try it.** Switch your keyboard to English, type `sghl` and a space in Notepad, then press
    <kbd>Tab</kbd> when the popup appears.
@@ -132,7 +133,7 @@ This is a keyboard monitor, so here is exactly what it does:
 
 - It keeps only the last few words you typed, in memory, to check them and retype them.
 - That memory is cleared when you click, use arrow keys, use shortcuts, or switch apps.
-- Nothing is written to disk, logged, or sent over the network. The app makes no network requests.
+- Nothing you type is written to disk, logged, or sent over the network. The app makes no network requests. The only thing remembered is your preferences (on Windows, the pop sound switch, saved as one registry value under `HKCU\Software\LayoutFixer`).
 
 The code is small enough to read: the Mac app is one file, [`Sources/main.swift`](Sources/main.swift),
 and the Windows app is six short files in [`windows/src`](windows/src).

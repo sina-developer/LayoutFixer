@@ -30,6 +30,7 @@ sealed class TrayApp : ApplicationContext
     readonly Fixer fixer;
     readonly NotifyIcon tray;
     readonly ToolStripMenuItem enabledItem = new("Enabled") { Checked = true };
+    readonly ToolStripMenuItem soundItem = new("Pop sound when a fix is suggested");
     readonly ToolStripMenuItem startupItem = new("Start with Windows");
     readonly ToolStripMenuItem layoutsItem = new("Add both an English and a Persian keyboard layout") { Enabled = false };
     // Delegates are kept in fields so the garbage collector doesn't free them while Windows calls them.
@@ -41,14 +42,23 @@ sealed class TrayApp : ApplicationContext
     {
         _ = ui.Handle; // create the handle so BeginInvoke works
         var dicts = new Dictionaries(Path.Combine(AppContext.BaseDirectory, "data"));
-        fixer = new Fixer(dicts, new Popup(), ui);
+        var popup = new Popup { PopSound = Settings.PopSound };
+        fixer = new Fixer(dicts, popup, ui);
 
         var menu = new ContextMenuStrip();
         menu.Items.Add(new ToolStripMenuItem("LayoutFixer") { Enabled = false });
         menu.Items.Add(layoutsItem);
         menu.Items.Add(new ToolStripSeparator());
         menu.Items.Add(enabledItem);
+        menu.Items.Add(soundItem);
         menu.Items.Add(startupItem);
+        soundItem.Checked = popup.PopSound;
+        soundItem.Click += (_, _) =>
+        {
+            popup.PopSound = soundItem.Checked = !soundItem.Checked;
+            Settings.PopSound = popup.PopSound;
+            if (popup.PopSound) Sounds.Pop(); // preview what it sounds like
+        };
         menu.Items.Add(new ToolStripSeparator());
         menu.Items.Add("Quit LayoutFixer", null, (_, _) => ExitThread());
         enabledItem.Click += (_, _) => { fixer.Enabled = enabledItem.Checked = !enabledItem.Checked; fixer.Reset(); };
